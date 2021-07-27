@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SessionDAO implements AbstractDAO<Session> {
-    public SessionDAO() {
-        Connection connection = ConnectionFactory.getConnection();
+    private final static Connection connection = ConnectionFactory.getConnection();
 
+    public SessionDAO() {
         String createTable = "CREATE TABLE IF NOT EXISTS sessions (" +
                 "id_session INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                "fk_patient INTEGER NOT NULL, " +
                 "session_type TEXT NOT NULL, " +
                 "start_date TEXT NOT NULL, " +
                 "duration INTEGER NOT NULL, " +
                 "efficiency REAL NOT NULL, " +
-                "FOREIGN KEY (fk_patient) REFERENCES patients (id_patient)" +
+                "id_patient INTEGER, " +
+                "CONSTRAINT fk_patient FOREIGN KEY (id_patient) " +
+                "REFERENCES patients (id_patient) ON DELETE CASCADE" +
                 ");";
 
         try (Statement statement = connection.createStatement()) {
@@ -31,8 +32,7 @@ public class SessionDAO implements AbstractDAO<Session> {
 
     @Override
     public List<Session> getAll() {
-        Connection connection = ConnectionFactory.getConnection();
-        String getAll = "SELECT id_session, fk_patient, session_type, start_date, duration, efficiency FROM sessions;";
+        String getAll = "SELECT id_session, id_patient, session_type, start_date, duration, efficiency FROM sessions;";
         List<Session> sessions = new ArrayList<>();
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(getAll)) {
@@ -40,7 +40,7 @@ public class SessionDAO implements AbstractDAO<Session> {
             while (resultSet.next()) {
                 Session session = new Session(
                         resultSet.getInt("id_session"),
-                        resultSet.getInt("fk_patient"),
+                        resultSet.getInt("id_patient"),
                         SessionType.valueOf(resultSet.getString("session_type")),
                         DateUtils.convertTextToDate(resultSet.getString("start_date")),
                         resultSet.getInt("duration"),
@@ -56,8 +56,7 @@ public class SessionDAO implements AbstractDAO<Session> {
 
     @Override
     public Session getOne(long id) {
-        Connection connection = ConnectionFactory.getConnection();
-        String getOne = "SELECT id_session, fk_patient, session_type, start_date, duration, efficiency FROM sessions " +
+        String getOne = "SELECT id_session, id_patient, session_type, start_date, duration, efficiency FROM sessions " +
                 "WHERE id_session = ?;";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(getOne)) {
@@ -67,7 +66,7 @@ public class SessionDAO implements AbstractDAO<Session> {
             if (resultSet.next()) {
                 return new Session(
                         resultSet.getInt("id_session"),
-                        resultSet.getInt("fk_patient"),
+                        resultSet.getInt("id_patient"),
                         SessionType.valueOf(resultSet.getString("session_type")),
                         DateUtils.convertTextToDate(resultSet.getString("start_date")),
                         resultSet.getInt("duration"),
@@ -85,9 +84,7 @@ public class SessionDAO implements AbstractDAO<Session> {
 
     @Override
     public int add(Session source) {
-        Connection connection = ConnectionFactory.getConnection();
-
-        String insertData = "INSERT INTO sessions(fk_patient, session_type, start_date, duration, efficiency) " +
+        String insertData = "INSERT INTO sessions(id_patient, session_type, start_date, duration, efficiency) " +
                 "VALUES(?, ?, ?, ?, ?);";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertData)) {
@@ -105,7 +102,6 @@ public class SessionDAO implements AbstractDAO<Session> {
 
     @Override
     public int remove(long id) {
-        Connection connection = ConnectionFactory.getConnection();
         String remove = "DELETE FROM sessions WHERE sessions.id_session = ?;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(remove)) {
             preparedStatement.setLong(1, id);
@@ -118,8 +114,7 @@ public class SessionDAO implements AbstractDAO<Session> {
 
     @Override
     public int alter(Session source) {
-        Connection connection = ConnectionFactory.getConnection();
-        String updateData = "UPDATE sessions SET fk_patient = ?, session_type = ?, start_date = ?, duration = ?, efficiency = ? " +
+        String updateData = "UPDATE sessions SET id_patient = ?, session_type = ?, start_date = ?, duration = ?, efficiency = ? " +
                 "WHERE id_session = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(updateData)) {

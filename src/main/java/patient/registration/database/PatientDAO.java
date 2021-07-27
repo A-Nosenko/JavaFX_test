@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PatientDAO implements AbstractDAO<Patient> {
-    public PatientDAO() {
-        Connection connection = ConnectionFactory.getConnection();
+    private final static Connection connection = ConnectionFactory.getConnection();
 
+    public PatientDAO() {
         String createTable = "CREATE TABLE IF NOT EXISTS patients (" +
                 "id_patient INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                 "given_name TEXT NOT NULL, " +
@@ -25,7 +25,6 @@ public class PatientDAO implements AbstractDAO<Patient> {
 
     @Override
     public List<Patient> getAll() {
-        Connection connection = ConnectionFactory.getConnection();
         String getAll = "SELECT id_patient, given_name, family_name, note FROM patients;";
         List<Patient> patients = new ArrayList<>();
         try (Statement statement = connection.createStatement();
@@ -48,7 +47,6 @@ public class PatientDAO implements AbstractDAO<Patient> {
 
     @Override
     public Patient getOne(long id) {
-        Connection connection = ConnectionFactory.getConnection();
         String getOne = "SELECT id_patient, given_name, family_name, note FROM patients WHERE id_patient = ?;";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(getOne)) {
@@ -74,8 +72,6 @@ public class PatientDAO implements AbstractDAO<Patient> {
 
     @Override
     public int add(Patient source) {
-        Connection connection = ConnectionFactory.getConnection();
-
         String insertData = "INSERT INTO patients(given_name, family_name, note) " +
                 "VALUES(?, ?, ?);";
 
@@ -92,7 +88,6 @@ public class PatientDAO implements AbstractDAO<Patient> {
 
     @Override
     public int remove(long id) {
-        Connection connection = ConnectionFactory.getConnection();
         String remove = "DELETE FROM patients WHERE patients.id_patient = ?;";
         try (PreparedStatement preparedStatement = connection.prepareStatement(remove)) {
             preparedStatement.setLong(1, id);
@@ -105,7 +100,6 @@ public class PatientDAO implements AbstractDAO<Patient> {
 
     @Override
     public int alter(Patient source) {
-        Connection connection = ConnectionFactory.getConnection();
         String updateData = "UPDATE patients SET given_name = ?, family_name = ?, note = ? WHERE id_patient = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(updateData)) {

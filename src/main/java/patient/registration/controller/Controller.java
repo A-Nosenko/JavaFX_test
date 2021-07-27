@@ -107,11 +107,15 @@ public class Controller {
     @FXML
     private void createPatient(ActionEvent event) {
         System.out.println("\t\t\t>>> CREATE PATIENT");
+        selectedSession.setValue(null);
+        selectedPatient.setValue(null);
     }
 
     @FXML
     private void removePatient(ActionEvent event) {
         System.out.println("\t\t\tREMOVE " + selectedPatient.get());
+        selectedSession.setValue(null);
+        selectedPatient.setValue(null);
     }
 
     @FXML
@@ -122,6 +126,8 @@ public class Controller {
     @FXML
     private void createSession(ActionEvent event) {
         System.out.println("\t\t\t>>> CREATE SESSION");
+        selectedSession.setValue(null);
+        selectedPatient.setValue(null);
     }
 
     @FXML

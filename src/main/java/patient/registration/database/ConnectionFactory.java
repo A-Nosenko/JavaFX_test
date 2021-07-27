@@ -16,6 +16,7 @@ public final class ConnectionFactory {
             String url = "jdbc:sqlite:test.db";
             try {
                 connection = DriverManager.getConnection(url);
+                connection.createStatement().execute("PRAGMA foreign_keys = ON");
             } catch (SQLException exception) {
                 System.err.println(exception.toString());
             }
