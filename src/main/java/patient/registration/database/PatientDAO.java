@@ -1,13 +1,28 @@
 package patient.registration.database;
 
 import patient.registration.model.Patient;
-import patient.registration.utils.DateUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PatientDAO implements AbstractDAO<Patient> {
+    public PatientDAO() {
+        Connection connection = ConnectionFactory.getConnection();
+
+        String createTable = "CREATE TABLE IF NOT EXISTS patients (" +
+                "id_patient INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "given_name TEXT NOT NULL, " +
+                "family_name TEXT NOT NULL, " +
+                "note TEXT);";
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createTable);
+        } catch (SQLException exception) {
+            System.err.println(exception.toString());
+        }
+    }
+
     @Override
     public List<Patient> getAll() {
         Connection connection = ConnectionFactory.getConnection();
@@ -61,20 +76,8 @@ public class PatientDAO implements AbstractDAO<Patient> {
     public int add(Patient source) {
         Connection connection = ConnectionFactory.getConnection();
 
-        String createTable = "CREATE TABLE IF NOT EXISTS patients (" +
-                "id_patient INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                "given_name TEXT NOT NULL, " +
-                "family_name TEXT NOT NULL, " +
-                "note TEXT);";
         String insertData = "INSERT INTO patients(given_name, family_name, note) " +
                 "VALUES(?, ?, ?);";
-
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(createTable);
-        } catch (SQLException exception) {
-            System.err.println(exception.toString());
-            return 0;
-        }
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertData)) {
             preparedStatement.setString(1, source.getGivenName());

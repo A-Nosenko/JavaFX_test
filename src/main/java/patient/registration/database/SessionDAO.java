@@ -9,6 +9,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SessionDAO implements AbstractDAO<Session> {
+    public SessionDAO() {
+        Connection connection = ConnectionFactory.getConnection();
+
+        String createTable = "CREATE TABLE IF NOT EXISTS sessions (" +
+                "id_session INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "fk_patient INTEGER NOT NULL, " +
+                "session_type TEXT NOT NULL, " +
+                "start_date TEXT NOT NULL, " +
+                "duration INTEGER NOT NULL, " +
+                "efficiency REAL NOT NULL, " +
+                "FOREIGN KEY (fk_patient) REFERENCES patients (id_patient)" +
+                ");";
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createTable);
+        } catch (SQLException exception) {
+            System.err.println(exception.toString());
+        }
+    }
+
     @Override
     public List<Session> getAll() {
         Connection connection = ConnectionFactory.getConnection();
@@ -67,24 +87,8 @@ public class SessionDAO implements AbstractDAO<Session> {
     public int add(Session source) {
         Connection connection = ConnectionFactory.getConnection();
 
-        String createTable = "CREATE TABLE IF NOT EXISTS sessions (" +
-                "id_session INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                "fk_patient INTEGER NOT NULL, " +
-                "session_type TEXT NOT NULL, " +
-                "start_date TEXT NOT NULL, " +
-                "duration INTEGER NOT NULL, " +
-                "efficiency REAL NOT NULL, " +
-                "FOREIGN KEY (fk_patient) REFERENCES patients (id_patient)" +
-                ");";
         String insertData = "INSERT INTO sessions(fk_patient, session_type, start_date, duration, efficiency) " +
                 "VALUES(?, ?, ?, ?, ?);";
-
-        try (Statement statement = connection.createStatement()) {
-            statement.execute(createTable);
-        } catch (SQLException exception) {
-            System.err.println(exception.toString());
-            return 0;
-        }
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertData)) {
             preparedStatement.setLong(1, source.getFkPatient());
