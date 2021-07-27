@@ -18,7 +18,7 @@
         <VBox minHeight="100"/>
 
         <Text>Session</Text>
-        <Button onAction="#createSession" minWidth="180">CREATE</Button>
+        <Button fx:id="createSession" onAction="#createSession" minWidth="180">CREATE</Button>
         <Button fx:id="editSession" onAction="#editSession" minWidth="180">EDIT</Button>
 
         <VBox minHeight="400"/>

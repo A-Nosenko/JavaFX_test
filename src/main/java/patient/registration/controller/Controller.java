@@ -16,7 +16,9 @@ import patient.registration.database.PatientDAO;
 import patient.registration.database.SessionDAO;
 import patient.registration.model.Patient;
 import patient.registration.model.Session;
+import patient.registration.model.SessionType;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -61,6 +63,9 @@ public class Controller {
     private Button removePatient;
 
     @FXML
+    public Button createSession;
+
+    @FXML
     private Button editSession;
 
     @FXML
@@ -89,10 +94,12 @@ public class Controller {
         editPatient.setDisable(true);
         removePatient.setDisable(true);
         editSession.setDisable(true);
+        createSession.setDisable(true);
 
         selectedPatient.addListener(patient -> {
             editPatient.setDisable(selectedPatient.get() == null);
             removePatient.setDisable(selectedPatient.get() == null);
+            createSession.setDisable(selectedPatient.get() == null);
         });
 
 
@@ -137,16 +144,15 @@ public class Controller {
     @FXML
     private void createSession(ActionEvent event) {
         System.out.println("\t\t\t>>> CREATE SESSION");
+        sessionDialog(null);
         selectedSession.setValue(null);
-        selectedPatient.setValue(null);
-
         fillSessions();
     }
 
     @FXML
     private void editSession(ActionEvent event) {
         System.out.println("\t\t\tEDIT " + selectedSession.get());
-
+        sessionDialog(selectedSession.get());
         fillSessions();
     }
 
@@ -210,6 +216,57 @@ public class Controller {
                 }
             } else {
                 System.err.println("Please, fill given name and family name fields.");
+            }
+        });
+    }
+
+    private void sessionDialog(Session source) {
+        Dialog<Session> dialog = new Dialog<>();
+        dialog.setTitle("Session");
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        Text durationMarker = new Text("Duration (minutes):");
+        TextField duration = new TextField();
+        if (source != null) {
+            duration.setText(String.valueOf(source.getDuration()));
+        }
+
+        Text efficiencyMarker = new Text("Efficiency (1 - 100):");
+        TextField efficiency = new TextField();
+        if (source != null) {
+            efficiency.setText(String.valueOf(source.getEfficiency()));
+        }
+
+        Text sessionTypesMarker = new Text("Select session type:");
+        ObservableList<SessionType> sessionTypes =
+                FXCollections.observableArrayList(SessionType.values());
+        ComboBox<SessionType> comboBox = new ComboBox<>(sessionTypes);
+        comboBox.getSelectionModel().selectFirst();
+
+        dialogPane.setContent(new VBox(1, durationMarker, duration,
+                efficiencyMarker, efficiency,
+                sessionTypesMarker, comboBox));
+        Platform.runLater(duration::requestFocus);
+        dialog.setResultConverter((ButtonType button) -> {
+            if (button == ButtonType.OK) {
+                return new Session(
+                        source == null ? 0 : source.getSessionId(),
+                        selectedPatient.get().getPatientId(),
+                        comboBox.getValue(),
+                        new Date(),
+                        Integer.parseInt(duration.getText().trim()),
+                        Double.parseDouble(efficiency.getText().trim())
+                );
+            }
+            return null;
+        });
+        Optional<Session> optionalResult = dialog.showAndWait();
+        optionalResult.ifPresent((Session session) -> {
+            if (source == null) {
+                sessionDAO.add(session);
+            } else {
+                sessionDAO.alter(session);
             }
         });
     }
