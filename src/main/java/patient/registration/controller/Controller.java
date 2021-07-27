@@ -1,21 +1,23 @@
 package patient.registration.controller;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import patient.registration.database.AbstractDAO;
 import patient.registration.database.PatientDAO;
 import patient.registration.database.SessionDAO;
 import patient.registration.model.Patient;
 import patient.registration.model.Session;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -109,18 +111,27 @@ public class Controller {
         System.out.println("\t\t\t>>> CREATE PATIENT");
         selectedSession.setValue(null);
         selectedPatient.setValue(null);
+        patientDialog(null);
+        patientsData.setAll(patientDAO.getAll());
+        fillSessions();
     }
 
     @FXML
     private void removePatient(ActionEvent event) {
         System.out.println("\t\t\tREMOVE " + selectedPatient.get());
+        patientDAO.remove(selectedPatient.get().getPatientId());
         selectedSession.setValue(null);
         selectedPatient.setValue(null);
+        patientsData.setAll(patientDAO.getAll());
+        fillSessions();
     }
 
     @FXML
     private void editPatient(ActionEvent event) {
         System.out.println("\t\t\tEDIT " + selectedPatient.get());
+        patientDialog(selectedPatient.get());
+        patientsData.setAll(patientDAO.getAll());
+        fillSessions();
     }
 
     @FXML
@@ -128,11 +139,15 @@ public class Controller {
         System.out.println("\t\t\t>>> CREATE SESSION");
         selectedSession.setValue(null);
         selectedPatient.setValue(null);
+
+        fillSessions();
     }
 
     @FXML
     private void editSession(ActionEvent event) {
         System.out.println("\t\t\tEDIT " + selectedSession.get());
+
+        fillSessions();
     }
 
     private void fillSessions() {
@@ -145,5 +160,57 @@ public class Controller {
                             .collect(Collectors.toList())
             );
         }
+    }
+
+    private void patientDialog(Patient source) {
+        Dialog<Patient> dialog = new Dialog<>();
+        dialog.setTitle("Patient");
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        Text givenNameTextFieldMarker = new Text("Given name:");
+        TextField givenNameTextField = new TextField();
+        if (source != null) {
+            givenNameTextField.setText(source.getGivenName());
+        }
+
+        Text familyNameTextFieldMarker = new Text("Family name:");
+        TextField familyNameTextField = new TextField();
+        if (source != null) {
+            familyNameTextField.setText(source.getFamilyName());
+        }
+
+        Text noteTextFieldMarker = new Text("Note:");
+        TextField noteTextField = new TextField();
+
+        dialogPane.setContent(new VBox(1, givenNameTextFieldMarker, givenNameTextField,
+                familyNameTextFieldMarker, familyNameTextField,
+                noteTextFieldMarker, noteTextField));
+        Platform.runLater(givenNameTextField::requestFocus);
+        dialog.setResultConverter((ButtonType button) -> {
+            if (button == ButtonType.OK) {
+                return new Patient(
+                        source == null ? 0 : source.getPatientId(),
+                        givenNameTextField.getText(), familyNameTextField.getText(),
+                        noteTextField.getText()
+                );
+            }
+            return null;
+        });
+        Optional<Patient> optionalResult = dialog.showAndWait();
+        optionalResult.ifPresent((Patient patient) -> {
+            if (patient.getGivenName() != null
+                    && patient.getFamilyName() != null
+                    && !patient.getGivenName().trim().isEmpty()
+                    && !patient.getFamilyName().trim().isEmpty()) {
+                if (source == null) {
+                    patientDAO.add(patient);
+                } else {
+                    patientDAO.alter(patient);
+                }
+            } else {
+                System.err.println("Please, fill given name and family name fields.");
+            }
+        });
     }
 }
