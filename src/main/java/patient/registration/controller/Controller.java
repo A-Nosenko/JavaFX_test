@@ -1,15 +1,24 @@
 package patient.registration.controller;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import patient.registration.database.AbstractDAO;
 import patient.registration.database.PatientDAO;
@@ -205,17 +214,12 @@ public class Controller {
         });
         Optional<Patient> optionalResult = dialog.showAndWait();
         optionalResult.ifPresent((Patient patient) -> {
-            if (patient.getGivenName() != null
-                    && patient.getFamilyName() != null
-                    && !patient.getGivenName().trim().isEmpty()
-                    && !patient.getFamilyName().trim().isEmpty()) {
+            if (isPatientValid(patient)) {
                 if (source == null) {
                     patientDAO.add(patient);
                 } else {
                     patientDAO.alter(patient);
                 }
-            } else {
-                System.err.println("Please, fill given name and family name fields.");
             }
         });
     }
@@ -263,11 +267,45 @@ public class Controller {
         });
         Optional<Session> optionalResult = dialog.showAndWait();
         optionalResult.ifPresent((Session session) -> {
-            if (source == null) {
-                sessionDAO.add(session);
-            } else {
-                sessionDAO.alter(session);
+            if (isSessionValid(session)) {
+                if (source == null) {
+                    sessionDAO.add(session);
+                } else {
+                    sessionDAO.alter(session);
+                }
             }
         });
+    }
+
+    private boolean isSessionValid(Session session) {
+        if (session.getDuration() <= 0) {
+            makeErrorAlert("Duration must be more than 0");
+            return false;
+        }
+
+        if (session.getEfficiency() < 0 || session.getEfficiency() > 100) {
+            makeErrorAlert("Efficiency must be from 0 to 100");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isPatientValid(Patient patient) {
+        if (patient.getGivenName() != null
+                && patient.getFamilyName() != null
+                && !patient.getGivenName().trim().isEmpty()
+                && !patient.getFamilyName().trim().isEmpty()) {
+            return true;
+        } else {
+            makeErrorAlert("Please, fill given name and family name fields.");
+            return false;
+        }
+    }
+
+    private void makeErrorAlert(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Incorrect data!");
+        alert.setContentText(text);
+        alert.showAndWait();
     }
 }
