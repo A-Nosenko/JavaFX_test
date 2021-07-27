@@ -72,6 +72,18 @@ public class Session {
         this.efficiency = efficiency;
     }
 
+    public String getSessionIdColumn() {
+        return "#" + sessionId;
+    }
+
+    public String getSessionEfficiencyColumn() {
+        return efficiency + "%";
+    }
+
+    public String getSessionDateColumn() {
+        return DateUtils.convertDateToText(startDate);
+    }
+
     @Override
     public String toString() {
         return "Session: ID = " + sessionId +

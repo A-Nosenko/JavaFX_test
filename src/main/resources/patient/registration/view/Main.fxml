@@ -1,5 +1,56 @@
-<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import java.net.URL?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<HBox fx:controller="patient.registration.controller.Controller"
+      xmlns:fx="http://javafx.com/fxml">
 
-<GridPane fx:controller="patient.registration.controller.Controller"
-          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
-</GridPane>
+    <VBox alignment="TOP_CENTER" minWidth="200" minHeight="700" styleClass="box">
+
+        <Text>Patient</Text>
+        <Button onAction="#createPatient" minWidth="180">CREATE</Button>
+        <Button fx:id="editPatient" onAction="#editPatient" minWidth="180">EDIT</Button>
+        <Button fx:id="removePatient" onAction="#removePatient" minWidth="180">REMOVE</Button>
+
+        <VBox minHeight="100"/>
+
+        <Text>Session</Text>
+        <Button onAction="#createSession" minWidth="180">CREATE</Button>
+        <Button fx:id="editSession" onAction="#editSession" minWidth="180">EDIT</Button>
+
+        <VBox minHeight="400"/>
+
+        <Button onAction="#closeApp" minWidth="180">CLOSE</Button>
+
+    </VBox>
+
+    <VBox alignment="TOP_CENTER" minWidth="300" minHeight="700" styleClass="box">
+        <TableView fx:id="tablePatients" minHeight="698">
+            <columns>
+                <TableColumn prefWidth="148" text="Name" fx:id="nameColumn"/>
+                <TableColumn prefWidth="148" text="Surname" fx:id="surnameColumn"/>
+            </columns>
+        </TableView>
+
+    </VBox>
+
+    <VBox alignment="TOP_CENTER" minWidth="700" minHeight="700" styleClass="box">
+        <TableView fx:id="tableSessions" minHeight="698">
+            <columns>
+                <TableColumn prefWidth="100" text="Session#" fx:id="sessionIdColumn"/>
+                <TableColumn prefWidth="300" text="Date" fx:id="sessionDateColumn"/>
+                <TableColumn prefWidth="150" text="Duration" fx:id="sessionDurationColumn"/>
+                <TableColumn prefWidth="147" text="Efficiency" fx:id="sessionEfficiencyColumn"/>
+            </columns>
+        </TableView>
+
+    </VBox>
+
+    <stylesheets>
+        <URL value="@main.css"/>
+    </stylesheets>
+
+</HBox>
