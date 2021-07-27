@@ -47,4 +47,12 @@ public class Patient {
     public void setNote(String note) {
         this.note = note;
     }
+
+    @Override
+    public String toString() {
+        return "Patient: ID = " + patientId +
+                ", givenName = " + givenName +
+                ", familyName = " + familyName +
+                ", note = " + note;
+    }
 }

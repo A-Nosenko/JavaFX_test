@@ -1,5 +1,7 @@
 package patient.registration.model;
 
+import patient.registration.utils.DateUtils;
+
 import java.util.Date;
 
 public class Session {
@@ -8,12 +10,12 @@ public class Session {
     private SessionType sessionType;
     private Date startDate;
     private int duration;
-    private byte efficiency;
+    private double efficiency;
 
     public Session() {
     }
 
-    public Session(long sessionId, long fkPatient, SessionType sessionType, Date startDate, int duration, byte efficiency) {
+    public Session(long sessionId, long fkPatient, SessionType sessionType, Date startDate, int duration, double efficiency) {
         this.sessionId = sessionId;
         this.fkPatient = fkPatient;
         this.sessionType = sessionType;
@@ -62,11 +64,21 @@ public class Session {
         this.duration = duration;
     }
 
-    public byte getEfficiency() {
+    public double getEfficiency() {
         return efficiency;
     }
 
-    public void setEfficiency(byte efficiency) {
+    public void setEfficiency(double efficiency) {
         this.efficiency = efficiency;
+    }
+
+    @Override
+    public String toString() {
+        return "Session: ID = " + sessionId +
+                ", fkPatient = " + fkPatient +
+                ", sessionType = " + sessionType +
+                ", startDate = " + DateUtils.convertDateToText(startDate) +
+                ", duration = " + duration +
+                ", efficiency = " + efficiency;
     }
 }
