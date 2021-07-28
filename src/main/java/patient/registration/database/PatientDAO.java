@@ -78,7 +78,7 @@ public class PatientDAO implements AbstractDAO<Patient> {
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertData)) {
             preparedStatement.setString(1, source.getGivenName());
             preparedStatement.setString(2, source.getFamilyName());
-            preparedStatement.setString(2, source.getNote());
+            preparedStatement.setString(3, source.getNote());
             return preparedStatement.executeUpdate();
         } catch (SQLException exception) {
             System.err.println(exception.toString());
